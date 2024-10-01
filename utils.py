@@ -124,3 +124,9 @@ def plot_pannel(ds: xr.Dataset, left, middle, right):
 
     # Show the plot
     plt.show()
+    
+def get_parameters_from_url(url):
+    date = url.split('date=')[1].split('&')[0]
+    yyyy, mm, dd = date[0:4], date[5:7], date[8:10]
+    station_id = url.split('station_id=')[1]
+    return yyyy, mm, dd, station_id
