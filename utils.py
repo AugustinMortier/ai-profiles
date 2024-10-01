@@ -1,7 +1,9 @@
+import copy
 import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
 from rich.progress import track
+from pathlib import Path
 
 def snr(ds: xr.Dataset, variable, step=4, verbose=False, log=True) -> xr.Dataset:
     """
@@ -88,9 +90,9 @@ def gaussian_filter(
         new_ds[var].attrs["gaussian_filter"] = sigma
         return new_ds
 
-def plot_pannel(ds: xr.Dataset, left, middle, right):
-    # Create a figure with two subplots (1 row, 3 columns)
-    fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+def plot_pannel(ds: xr.Dataset, left, right, save, method):
+    # Create a figure with two subplots (1 row, 2 columns)
+    fig, axes = plt.subplots(1, 2, figsize=(16, 6))
 
     # Plot attenuated_backscatter_0 on the first subplot
     ds[left['variable']].transpose().plot(
@@ -101,29 +103,62 @@ def plot_pannel(ds: xr.Dataset, left, middle, right):
     )
     axes[0].set_title(left['title'])
 
-    # Plot snr on the second subplot
-    ds[middle['variable']].transpose().plot(
-        ax=axes[1], 
-        vmin=middle['vmin'], 
-        vmax=middle['vmax'], 
-        cmap=middle['cmap']
-    )
-    axes[1].set_title(middle['title'])
-
-    # Plot filter on the third subplot
+    # Plot cloud filter on the second subplot
     ds[right['variable']].transpose().plot(
-        ax=axes[2], 
+        ax=axes[1], 
         vmin=right['vmin'], 
         vmax=right['vmax'], 
         cmap=right['cmap']
     )
-    axes[2].set_title(right['title'])
+    axes[1].set_title(right['title'])
 
     # Adjust layout for better spacing
     plt.tight_layout()
+    
+    if save:
+        station = f'{ds.attrs["wigos_station_id"]}-{ds.attrs["instrument_id"]}'
+        date = str(ds.time[0].data).split('T')[0]
+        plt.savefig(Path('output', f'{station}-{date}-{method}.png'))
+    else:
+        plt.show()
 
-    # Show the plot
-    plt.show()
+def correct_saturation_abs(backscatter, altitude_threshold=4000):
+    """
+    Apply a simple saturation correction by taking absolute values of the backscatter signal
+    below the specified altitude threshold (default 4000m).
+    
+    Parameters:
+        backscatter (xarray.DataArray): The backscatter signal to correct.
+        altitude_threshold (float): Altitude threshold for applying the absolute correction.
+    
+    Returns:
+        corrected_backscatter (xarray.DataArray): The backscatter signal with saturation correction.
+    """
+    # Apply absolute value below 4000m
+    corrected_backscatter = backscatter.where(backscatter.altitude >= altitude_threshold, abs(backscatter))
+
+    return corrected_backscatter
+
+def correct_saturation_advanced(backscatter, altitude_threshold=4000):
+    """
+    Apply an advanced saturation correction by detecting and adjusting negative values in
+    the backscatter signal below the specified altitude threshold (default 4000m).
+    
+    Parameters:
+        backscatter (xarray.DataArray): The backscatter signal to correct.
+        altitude_threshold (float): Altitude threshold for applying the correction.
+    
+    Returns:
+        corrected_backscatter (xarray.DataArray): The backscatter signal with advanced saturation correction.
+    """
+    # Detect negative values below 4000m and adjust them
+    saturation_mask = (backscatter < 0) & (backscatter.altitude < altitude_threshold)
+    
+    # Apply a proportional correction (for example, we add a bias equal to the negative value)
+    bias = -backscatter.where(saturation_mask, 0)
+    corrected_backscatter = backscatter + bias
+    
+    return corrected_backscatter
     
 def get_parameters_from_url(url):
     date = url.split('date=')[1].split('&')[0]
