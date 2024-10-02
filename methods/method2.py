@@ -14,6 +14,7 @@ def run(ds, thr_cloud, thr_snr, save):
     #cloud_mask = binary_erosion(cloud_mask, structure=np.ones((3, 3)))  # Erosion to remove small noise
     #cloud_mask = binary_dilation(cloud_mask, structure=np.ones((3, 3)))  # Dilation to restore cloud regions
     ds['cloud_mask'] = xr.DataArray(cloud_mask, dims=ds.dims, coords=ds.coords)
+    
 
     # plot that
     left = {'variable': 'attenuated_backscatter_0', 'title': 'Attenuated Backscatter', 'vmin': -1, 'vmax': 1, 'cmap': 'bwr'}
