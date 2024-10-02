@@ -139,7 +139,6 @@ def correct_saturation_abs(backscatter, altitude_threshold=4000):
 
     return corrected_backscatter
 
-def correct_saturation_advanced(backscatter, altitude_threshold=4000):
     """
     Apply an advanced saturation correction by detecting and adjusting negative values in
     the backscatter signal below the specified altitude threshold (default 4000m).
