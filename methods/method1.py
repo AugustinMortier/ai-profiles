@@ -23,4 +23,3 @@ def run(ds, options, save):
     method = path.split('methods/')[1].split('.py')[0]
     str_options = utils.str_options(options)
     utils.plot_panel(ds, left, right, save, method=f'{method}-{str_options}')
-

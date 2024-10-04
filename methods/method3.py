@@ -4,6 +4,7 @@ import numpy as np
 import utils
 import xarray as xr
 from sklearn.cluster import DBSCAN
+from sklearn.preprocessing import StandardScaler
 
 def run(ds, options, save):
     
@@ -34,9 +35,10 @@ def run(ds, options, save):
     
     # Create a dataset where points have (time, altitude, cloud_mask intensity)
     points = np.column_stack([X_valid, Y_valid, cloud_mask_valid.ravel()])
+    points_normalized = StandardScaler().fit_transform(points)
     
     # Apply DBSCAN clustering
-    db = DBSCAN(eps=eps, min_samples=min_samples).fit(points)
+    db = DBSCAN(eps=eps, min_samples=min_samples).fit(points_normalized)
     labels = db.labels_
     
     # Reshape labels to match the original data dimensions (using NaN mask)

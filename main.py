@@ -30,8 +30,8 @@ for url in track(urls):
     
     thr_cloud_values = [4]
     thr_snr_values = [1]
-    eps_values = [1.5]  # Start smaller and increase
-    min_samples_values = [1, 2, 3, 4]  # Start with default and increase
+    eps_values = [0.1]  # Start smaller and increase
+    min_samples_values = [5]  # Start with default and increase
             
     # run methods
     for thr_cloud in thr_cloud_values:
@@ -39,6 +39,6 @@ for url in track(urls):
             method1.run(ds, {"thr_cloud":thr_cloud, "thr_snr":thr_snr}, save=True)
             method2.run(ds, {"thr_cloud":thr_cloud, "thr_snr":thr_snr}, save=True)
     
-            #for eps in eps_values:
-            #    for min_samples in min_samples_values:
-            #        method3.run(ds, {"thr_cloud":4, "thr_snr": 1, "eps": eps, "min_samples": min_samples}, save=True)
+            for eps in eps_values:
+                for min_samples in min_samples_values:
+                    method3.run(ds, {"thr_cloud":4, "thr_snr": 1, "eps": eps, "min_samples": min_samples}, save=True)

@@ -12,9 +12,9 @@ def run(ds, options, save):
     thr_snr = options['thr_snr']
     
     ds = utils.snr(ds, 'attenuated_backscatter_0', step=2, log=False)
-    backscatter = ds['attenuated_backscatter_0'].data
-    backscatter = median_filter(backscatter, size=(3, 3))
-    ds['attenuated_backscatter_0'] = xr.DataArray(backscatter, dims=ds.dims, coords=ds.coords)
+    #backscatter = ds['attenuated_backscatter_0'].data
+    #backscatter = median_filter(backscatter, size=(3, 3))
+    #ds['attenuated_backscatter_0'] = xr.DataArray(backscatter, dims=ds.dims, coords=ds.coords)
     
     cloud_mask = ds.where(ds.attenuated_backscatter_0>=thr_cloud).where(ds.snr>=thr_snr)['attenuated_backscatter_0'].data
     #cloud_mask = median_filter(cloud_mask, size=(3, 3))
