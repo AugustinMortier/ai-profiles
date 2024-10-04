@@ -2,6 +2,8 @@ import copy
 import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
 from rich.progress import track
 from pathlib import Path
 
@@ -90,7 +92,7 @@ def gaussian_filter(
         new_ds[var].attrs["gaussian_filter"] = sigma
         return new_ds
 
-def plot_pannel(ds: xr.Dataset, left, right, save, method):
+def plot_panel(ds: xr.Dataset, left, right, save, method):
     # Create a figure with two subplots (1 row, 2 columns)
     fig, axes = plt.subplots(1, 2, figsize=(16, 6))
 
@@ -118,7 +120,9 @@ def plot_pannel(ds: xr.Dataset, left, right, save, method):
     if save:
         station = f'{ds.attrs["wigos_station_id"]}-{ds.attrs["instrument_id"]}'
         date = str(ds.time[0].data).split('T')[0]
+        Path('output').mkdir(parents=True, exist_ok=True)
         plt.savefig(Path('output', f'{station}-{date}-{method}.png'))
+        plt.close()
     else:
         plt.show()
 
@@ -164,3 +168,9 @@ def get_parameters_from_url(url):
     yyyy, mm, dd = date[0:4], date[5:7], date[8:10]
     station_id = url.split('station_id=')[1]
     return yyyy, mm, dd, station_id
+
+def str_options(dict):
+    str_options = []
+    for key in dict.keys():
+        str_options.append(f'{key}:{dict[key]}')
+    return '-'.join(str_options)
