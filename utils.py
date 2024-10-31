@@ -2,7 +2,6 @@ import copy
 import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
-import matplotlib
 from rich.progress import track
 from pathlib import Path
 
@@ -119,8 +118,8 @@ def plot_panel(ds: xr.Dataset, left, right, save, method):
     if save:
         station = f'{ds.attrs["wigos_station_id"]}-{ds.attrs["instrument_id"]}'
         date = str(ds.time[0].data).split('T')[0]
-        Path('output').mkdir(parents=True, exist_ok=True)
-        plt.savefig(Path('output', f'{station}-{date}-{method}.png'))
+        Path('output','main').mkdir(parents=True, exist_ok=True)
+        plt.savefig(Path('output', 'main', f'{station}-{date}-{method}.png'))
         plt.close()
     else:
         plt.show()
