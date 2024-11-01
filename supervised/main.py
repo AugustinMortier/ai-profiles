@@ -1,5 +1,5 @@
 import xarray as xr
-import utils, methods.method1 as method1, methods.method2 as method2, methods.method3 as method3
+import supervised.utils as utils, methods.method1 as method1, methods.method2 as method2, methods.method3 as method3
 from rich.progress import track
 from rich.console import Console
 console = Console()

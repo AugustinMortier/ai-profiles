@@ -3,11 +3,12 @@
 import os
 import joblib
 import numpy as np
+import tensorflow as tf
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 
 # Path to the images
-image_dir = 'output/rcs'
-image_size = (128, 128)  # Resize images to a consistent size
+image_dir = 'images/rcs'
+image_size = (128, 256)  # Resize images to a consistent size
 
 # Load and preprocess images
 images = []
@@ -28,7 +29,7 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D
 
 # Encoder
-input_img = Input(shape=(128, 128, 3))
+input_img = Input(shape=(128, 256, 3))
 x = Conv2D(32, (3, 3), activation='relu', padding='same')(input_img)
 x = MaxPooling2D((2, 2), padding='same')(x)
 x = Conv2D(64, (3, 3), activation='relu', padding='same')(x)
@@ -52,14 +53,14 @@ autoencoder = Model(input_img, decoded)
 autoencoder.compile(optimizer='adam', loss='mse')
 
 # Train the autoencoder
-autoencoder.fit(images, images, epochs=50, batch_size=16, shuffle=True)
-
+autoencoder.fit(images, images, epochs=20, batch_size=16, shuffle=True)
 
 
 # Step 3: Extract Features and Cluster
-encoder = Model(inputs=autoencoder.input, outputs=encoded)
-encoder.save('./mymodel.keras')
 
+# Define encoder model
+encoder = Model(inputs=autoencoder.input, outputs=encoded)
+encoder.save('unsupervised/cnn/encoder.keras')
 
 # Encode all images
 encoded_images = encoder.predict(images)
@@ -68,10 +69,10 @@ encoded_images = encoded_images.reshape((encoded_images.shape[0], -1))  # Flatte
 # Cluster the encoded features
 from sklearn.cluster import KMeans
 
-kmeans = KMeans(n_clusters=3, random_state=42)
+kmeans = KMeans(n_clusters=8, random_state=42, init='k-means++')
 labels = kmeans.fit_predict(encoded_images)
-joblib.dump(kmeans, './kmeans_model.pkl')
-np.save('./kmeans_labels.npy', labels)
+joblib.dump(kmeans, 'unsupervised/cnn/kmeans.pkl')
+#np.save('unsupervised/cnn/kmeans_labels.npy', labels)
 
 # Visualize clustering results
 import matplotlib.pyplot as plt

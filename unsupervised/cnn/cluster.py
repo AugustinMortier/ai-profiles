@@ -2,59 +2,75 @@ import joblib
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
+from sklearn.decomposition import PCA
+from skimage.transform import resize
 import matplotlib.pyplot as plt
 
+image_path = 'images/rcs/AP_0-100-20000-0000001-A-2024-07-02.png'
+
 # Function to visualize clusters
-def visualize_clusters(original_img, encoded_img, cluster_labels, num_clusters):
+def visualize_clusters(original_img, encoded_features, cluster_labels, num_clusters):
     # Create a color map for the clusters
-    colors = plt.cm.get_cmap('hsv', num_clusters)  # Using HSV colormap
+    colors = plt.colormaps['hsv']  # Using HSV colormap
     clustered_image = np.zeros((*original_img.shape[0:2], 3))  # Empty image for clusters
 
     # Assign colors to clusters
     for cluster_id in range(num_clusters):
-        clustered_image[cluster_labels == cluster_id] = colors(cluster_id)[:3]  # RGB values
+        clustered_image[cluster_labels == cluster_id] = colors(cluster_id / num_clusters)[:3]  # RGB values
 
-    # Plot original and clustered images
-    plt.figure(figsize=(12, 6))
+    # Process encoded features with PCA
+    encoded_flat = encoded_features.reshape(-1, encoded_features.shape[-1])  # Shape: (num_pixels, num_features)
+    pca = PCA(n_components=3)
+    encoded_pca = pca.fit_transform(encoded_flat)
+
+    # Reshape PCA-reduced features to match the downsampled dimensions of the encoded features
+    downsampled_height, downsampled_width = encoded_features.shape[0], encoded_features.shape[1]
+    encoded_pca_img = encoded_pca.reshape(downsampled_height, downsampled_width, 3)
     
-    plt.subplot(1, 2, 1)
-    plt.title("Original Image")
-    plt.imshow(original_img)
-    plt.axis('off')
-    
-    plt.subplot(1, 2, 2)
-    plt.title("Clustered Image")
-    plt.imshow(clustered_image)
-    plt.axis('off')
-    
+    # Resize PCA image to match original image dimensions
+    encoded_pca_img = resize(encoded_pca_img, (original_img.shape[0], original_img.shape[1]), anti_aliasing=True)
+    encoded_pca_img = (encoded_pca_img - encoded_pca_img.min()) / (encoded_pca_img.max() - encoded_pca_img.min())  # Normalize to 0-1
+
+    # Plot original, encoded, and clustered images side by side
+    fig, axs = plt.subplots(1, 3, figsize=(15, 5))
+
+    # Original Image
+    axs[0].imshow(original_img)
+    axs[0].set_title("Original Image")
+    axs[0].axis("off")
+
+    # Encoded Features (PCA-reduced and resized)
+    axs[1].imshow(encoded_pca_img)
+    axs[1].set_title("Encoded Features (PCA)")
+    axs[1].axis("off")
+
+    # Clustered Image
+    axs[2].imshow(clustered_image)
+    axs[2].set_title("Clustered Image")
+    axs[2].axis("off")
+
+    plt.tight_layout()
     plt.show()
 
-image_size = (128, 128)  # Resize images to a consistent size
+image_size = (128, 256)  # Resize images to a consistent size
 
 # Load and preprocess the new image
-new_image_path = 'unsupervised/images/rcs/AP_0-100-20000-0000001-A-2024-07-01.png'
-new_img = load_img(new_image_path, target_size=image_size, color_mode='rgb')
+new_img = load_img(image_path, target_size=image_size, color_mode='rgb')
 original_img_array = img_to_array(new_img) / 255.0  # Normalize to [0, 1]
 new_img_array = np.expand_dims(original_img_array, axis=0)  # Add batch dimension
 
 # Encode the new image using the encoder
-encoder = tf.keras.models.load_model('unsupervised/cnn/mymodel.keras')
-encoded_new_img = encoder.predict(new_img_array)
+encoder = tf.keras.models.load_model('unsupervised/cnn/encoder.keras')
+encoded_features = encoder.predict(new_img_array)
 
-# Flatten to match feature vector and convert to float32 if KMeans was trained on float32
-encoded_new_img = encoded_new_img.flatten().astype(np.float32)  # Change to float32
-
-# Reshape to 2D array (1, number_of_features)
-encoded_new_img = np.reshape(encoded_new_img, (1, -1))
+# Remove the batch dimension from encoded features for PCA
+encoded_features = encoded_features[0]
 
 # Load KMeans model and predict cluster
-kmeans = joblib.load('unsupervised/cnn/kmeans_model.pkl')
-new_img_cluster = kmeans.predict(encoded_new_img)
+kmeans = joblib.load('unsupervised/cnn/kmeans.pkl')
+new_img_cluster = kmeans.predict(encoded_features.reshape(1, -1))
 
-# Get the labels for visualization (example: assuming the image is divided into a grid)
-# Here, you need to get the cluster labels for each pixel or region in your original image
-# For demonstration, I'll create random labels for the number of pixels in the image.
-# Replace this with your actual clustering logic if you have it.
+# Generate random cluster labels for visualization purposes (replace with actual cluster logic)
 num_clusters = kmeans.n_clusters
 cluster_labels = np.random.randint(0, num_clusters, original_img_array.shape[0] * original_img_array.shape[1])
 
@@ -62,4 +78,4 @@ cluster_labels = np.random.randint(0, num_clusters, original_img_array.shape[0] 
 cluster_labels = cluster_labels.reshape(original_img_array.shape[0], original_img_array.shape[1])
 
 # Visualize the clusters
-visualize_clusters(original_img_array, encoded_new_img, cluster_labels, num_clusters)
+visualize_clusters(original_img_array, encoded_features, cluster_labels, num_clusters)

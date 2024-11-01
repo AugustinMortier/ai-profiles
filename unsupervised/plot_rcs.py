@@ -2,10 +2,11 @@ import xarray as xr
 import pathlib
 from rich.progress import track
 import matplotlib.pyplot as plt
+import numpy as np
 
 yyyy = '2024'
 mm = '07'
-dd = '04'
+dd = '02'
 
 # list all AP files for a given date
 files = [f for f in pathlib.Path('..', 'data', yyyy, mm, dd).iterdir() if f.is_file()]
@@ -21,17 +22,16 @@ for file in track(files):
 
     # Plot attenuated_backscatter_0
     try:
-        rcs.transpose().plot( 
-            vmin=-1,
-            vmax=2, 
-            cmap='coolwarm',
+        np.log(rcs).transpose().plot( 
+            vmin=-2,
+            vmax=2,
+            cmap='cubehelix_r', #'coolwarm',
             add_colorbar=False
         )
-
         # Adjust layout for better spacing
         plt.axis('off')
-        pathlib.Path('unsupervised', 'images','rcs').mkdir(parents=True, exist_ok=True)
-        plt.savefig(pathlib.Path('unsupervised', 'images', 'rcs', f'{file.stem}.png'), bbox_inches='tight', pad_inches = 0)
+        pathlib.Path('images','rcs').mkdir(parents=True, exist_ok=True)
+        plt.savefig(pathlib.Path('images', 'rcs', f'{file.stem}.png'), bbox_inches='tight', pad_inches = 0)
         plt.close()
     except:
         continue
