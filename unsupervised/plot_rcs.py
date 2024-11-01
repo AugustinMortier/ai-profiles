@@ -6,7 +6,7 @@ import numpy as np
 
 yyyy = '2024'
 mm = '07'
-dd = '02'
+dd = '04'
 
 # list all AP files for a given date
 files = [f for f in pathlib.Path('..', 'data', yyyy, mm, dd).iterdir() if f.is_file()]
@@ -25,7 +25,7 @@ for file in track(files):
         np.log(rcs).transpose().plot( 
             vmin=-2,
             vmax=2,
-            cmap='cubehelix_r', #'coolwarm',
+            cmap='gray_r', #'coolwarm',
             add_colorbar=False
         )
         # Adjust layout for better spacing
