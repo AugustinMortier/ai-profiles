@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 # Path to the images
 image_dir = 'images/rcs'
-image_size = (128, 256)  # Resize images to a consistent size
+image_size = (240, 624)  # Resize images to a consistent size
 
 # Step 1: Load and Preprocess the Dataset
 images = []
@@ -26,7 +26,7 @@ print(f"Loaded dataset shape: {images.shape}")
 
 # Step 2: Define and Train an Autoencoder
 # Encoder
-input_img = Input(shape=(128, 256, 1))  # Input shape for grayscale images
+input_img = Input(shape=(240, 624, 1))  # Input shape for grayscale images
 x = Conv2D(32, (3, 3), activation='relu', padding='same')(input_img)
 x = MaxPooling2D((2, 2), padding='same')(x)
 x = Conv2D(64, (3, 3), activation='relu', padding='same')(x)
@@ -50,7 +50,7 @@ autoencoder = Model(input_img, decoded)
 autoencoder.compile(optimizer='adam', loss='mse')
 
 # Train the autoencoder
-autoencoder.fit(images, images, epochs=10, batch_size=16, shuffle=True)
+autoencoder.fit(images, images, epochs=5, batch_size=16, shuffle=True)
 
 # Step 3: Extract Features and Cluster for Pixel-wise Clustering
 
