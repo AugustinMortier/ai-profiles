@@ -18,7 +18,7 @@ encoder = load_model(encoder_path)
 kmeans = joblib.load(kmeans_path)
 
 # Load and preprocess the image
-image_size = (128, 256)  # Consistent with training size
+image_size = (256, 512)  # Consistent with training size
 img = load_img(image_path, target_size=image_size, color_mode='grayscale')
 img_array = img_to_array(img) / 255.0  # Normalize to [0, 1]
 img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension

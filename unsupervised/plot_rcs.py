@@ -6,10 +6,13 @@ import numpy as np
 
 yyyy = '2024'
 mm = '07'
-dd = '04'
+d1, d2 = 11, 15
+dds = [str(d).zfill(2) for d in list(range(d1,d2+1))]
+dd = ['04']
 
 # list all AP files for a given date
-files = [f for f in pathlib.Path('..', 'data', yyyy, mm, dd).iterdir() if f.is_file()]
+files = [[f for f in pathlib.Path('..', 'data', yyyy, mm, dd).iterdir() if f.is_file()] for dd in dds]
+files = np.concatenate(files, axis=0)
 
 for file in track(files):
     var = 'attenuated_backscatter_0'
