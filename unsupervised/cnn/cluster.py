@@ -8,14 +8,21 @@ from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from skimage import measure
 from skimage.transform import resize
 
-# Paths to saved models and images
+# input
+image_path = 'images/rcs/AP_0-100-20000-0000001-A-2024-07-03.png'
+method = 'kmeans' # 'kmeans', 'hdbscan'
+
+# Paths to saved models
 encoder_path = 'unsupervised/cnn/encoder.keras'
 kmeans_path = 'unsupervised/cnn/kmeans.pkl'
-image_path = 'images/rcs/AP_0-100-20000-0000001-A-2024-07-02.png'
+hdbscan_path = 'unsupervised/cnn/hdbscan.pkl'
 
 # Load the encoder and kmeans model
 encoder = load_model(encoder_path)
-kmeans = joblib.load(kmeans_path)
+if method == 'kmeans':
+    cluster = joblib.load(kmeans_path)
+elif method == 'hdbscan':
+    cluster = joblib.load(hdbscan_path)
 
 # Load and preprocess the image
 image_size = (256, 512)  # Consistent with training size
@@ -35,7 +42,7 @@ aggregated_encoded_img = (aggregated_encoded_img - aggregated_encoded_img.min())
 
 # Step 2: Flatten Encoded Features and Cluster
 encoded_img_flat = encoded_img.reshape(-1, encoded_img.shape[-1])  # Flatten spatial dimensions for clustering
-pixel_labels = kmeans.predict(encoded_img_flat)  # Get cluster labels for each pixel
+pixel_labels = cluster.predict(encoded_img_flat)  # Get cluster labels for each pixel
 
 # Reshape the cluster labels back to the spatial dimensions
 pixel_labels_image_shape = pixel_labels.reshape(encoded_img.shape[0], encoded_img.shape[1])
