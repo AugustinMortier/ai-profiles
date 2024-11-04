@@ -50,7 +50,7 @@ autoencoder = Model(input_img, decoded)
 autoencoder.compile(optimizer='adam', loss='mse')
 
 # Train the autoencoder
-autoencoder.fit(images, images, epochs=10, batch_size=16, shuffle=True)
+autoencoder.fit(images, images, epochs=5, batch_size=16, shuffle=True)
 
 # Step 3: Extract Features and Cluster for Pixel-wise Clustering
 

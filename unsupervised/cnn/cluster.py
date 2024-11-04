@@ -53,7 +53,7 @@ clustered_image = colormap(upsampled_pixel_labels)  # Apply the colormap
 clustered_image[..., 3] = 0.5  # Set the alpha channel to 0.5 for transparency
 
 # Step 6: Plot the Results
-plt.figure(figsize=(15, 10))  # Adjust size for two rows
+plt.figure(figsize=(12, 8))  # Adjust size for two rows
 
 # Original image
 plt.subplot(2, 2, 1)
