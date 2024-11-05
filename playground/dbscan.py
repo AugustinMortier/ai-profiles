@@ -5,13 +5,21 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
 
-path_image = 'images/rcs/AP_0-100-20000-0000001-A-2024-07-02.png'
-#path_image = 'images/landscape.jpeg'
+img_path = 'images/rcs/AP_0-100-20000-0000001-A-2024-07-02.png'
+#img_path = 'images/landscape.jpeg'
 
 plt.rcParams["figure.figsize"] = (12, 50) 
 
+# Path to the images
+image_dir = 'images/rcs'
+image_size = (256, 512)  # Resize images to a consistent size
+
+# Step 1: Load and Preprocess the Dataset
+img = load_img(img_path, target_size=image_size)
+
+
 # load image
-img = cv.imread(path_image)
+#img = cv.imread(img_path)
 Z = img.reshape((-1, 3))  # Flatten image to list of pixels
 
 # Convert to np.float32 and standardize for DBSCAN
