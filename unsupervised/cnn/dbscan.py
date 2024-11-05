@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
-import hdbscan
+from sklearn.cluster import DBSCAN
 import matplotlib.pyplot as plt
 
 # Path to the images
@@ -28,32 +28,32 @@ encoder = load_model(encoder_path)
 
 # 2. Encode each image to get pixel-level features
 encoded_images = encoder.predict(images)
-print(f"Encoded images shape: {encoded_images.shape}")
+
+# Check shape of encoded images
+print(f"Encoded images shape: {encoded_images.shape}")  # Expected (num_images, 16, 32, 128) for example
 
 # 3. Flatten spatial dimensions but keep feature channels intact
 num_images, enc_height, enc_width, num_features = encoded_images.shape
 encoded_images_flat = encoded_images.reshape((num_images * enc_height * enc_width, num_features))
 print(f"Encoded pixel features shape for clustering: {encoded_images_flat.shape}")
 
-# 4. Apply HDBSCAN to pixel features
-# Adjust the `min_cluster_size` parameter as needed based on expected cluster sizes
-clusterer = hdbscan.HDBSCAN(min_cluster_size=30)
-pixel_labels = clusterer.fit_predict(encoded_images_flat)
-print("Clustering complete")
+# 4. Apply DBSCAN to pixel features
+# Set `eps` and `min_samples` as needed
+dbscan = DBSCAN(eps=0.5, min_samples=5, n_jobs=-1)  # Adjust `eps` and `min_samples` based on data density
+pixel_labels = dbscan.fit_predict(encoded_images_flat)  # Clusters all pixels independently
 
-joblib.dump(clusterer, 'unsupervised/cnn/hdbscan.pkl')
+# Optional: Save DBSCAN model if desired
+joblib.dump(dbscan, 'unsupervised/cnn/dbscan.pkl')
 
 # 5. Reshape pixel labels back into image form for visualization
+# After clustering, reshape pixel_labels to (num_images, enc_height, enc_width)
 pixel_labels_image_shape = pixel_labels.reshape((num_images, enc_height, enc_width))
 print(f"Pixel-wise clustered image shape: {pixel_labels_image_shape.shape}")
 
-# Optional: Plot a sample result
-plt.figure(figsize=(10, 5))
-plt.subplot(1, 2, 1)
-plt.imshow(images[0].reshape(image_size), cmap='gray')
-plt.title("Original Image")
-
-plt.subplot(1, 2, 2)
-plt.imshow(pixel_labels_image_shape[0], cmap='tab20')
-plt.title("HDBSCAN Clustered Image")
+# Plot the clustered results
+plt.figure(figsize=(10, 10))
+for i in range(num_images):
+    plt.subplot(1, num_images, i + 1)
+    plt.imshow(pixel_labels_image_shape[i], cmap='tab20')
+    plt.axis('off')
 plt.show()
