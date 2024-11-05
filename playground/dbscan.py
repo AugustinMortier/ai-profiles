@@ -1,52 +1,51 @@
 # imports 
 import numpy as np 
 import cv2 as cv 
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
 
 img_path = 'images/rcs/AP_0-100-20000-0000001-A-2024-07-02.png'
-#img_path = 'images/landscape.jpeg'
+img_path = 'images/landscape.jpeg'
 
 plt.rcParams["figure.figsize"] = (12, 50) 
 
 # Path to the images
 image_dir = 'images/rcs'
-image_size = (256, 512)  # Resize images to a consistent size
+image_size = (512, 512)  # Resize images to a consistent size
 
-# Step 1: Load and Preprocess the Dataset
-img = load_img(img_path, target_size=image_size)
+# load and resize image to reduce processing time
+img = cv.imread('images/rcs/AP_0-100-20000-0000001-A-2024-07-02.png')
+img_resized = cv.resize(img, image_size, interpolation=cv.INTER_AREA) 
 
+# Flatten the resized image to a list of RGB values
+Z = img_resized.reshape((-1, 3))
+Z = np.float32(Z)  # Convert to float32 for DBSCAN processing
 
-# load image
-#img = cv.imread(img_path)
-Z = img.reshape((-1, 3))  # Flatten image to list of pixels
+# Set DBSCAN parameters
+eps = 10  # Adjust as needed
+min_samples = 50  # Adjust as needed
+db = DBSCAN(eps=eps, min_samples=min_samples).fit(Z)
 
-# Convert to np.float32 and standardize for DBSCAN
-Z = np.float32(Z)
-Z_scaled = StandardScaler().fit_transform(Z)  # Scale features to have zero mean and unit variance
-
-# Apply DBSCAN clustering
-dbscan = DBSCAN(eps=0.5, min_samples=10)  # Adjust eps and min_samples based on your data
-labels = dbscan.fit_predict(Z_scaled)
-
-# Find unique labels (clusters) and assign random colors to each
+# Use labels to color the image
+labels = db.labels_
 unique_labels = np.unique(labels)
-colors = np.random.randint(0, 255, (len(unique_labels), 3))
 
-# Create an output image where each pixel's color corresponds to its cluster label
-res = np.zeros_like(Z, dtype=np.uint8)
-for label in unique_labels:
-    if label == -1:  # DBSCAN uses -1 for noise
-        color = [0, 0, 0]  # Set noise to black
-    else:
-        color = colors[label]
-    res[labels == label] = color  # Assign color to all pixels in the current cluster
+# Create a color map
+# If there are only noise points (-1), set a single black color
+if len(unique_labels) == 1 and unique_labels[0] == -1:
+    colors = np.array([[0, 0, 0]])  # Only noise, all black
+else:
+    colors = np.random.randint(0, 255, size=(len(unique_labels), 3))  # Colors for clusters and noise
+    colors[unique_labels == -1] = [0, 0, 0]  # Set noise (label -1) to black
 
-# Reshape the clustered result back to the original image shape
-res2 = res.reshape(img.shape)
+# Map each label to its corresponding color
+label_color_map = np.array([colors[unique_labels == label][0] for label in labels])
 
-# Display the result
-cv.imshow('DBSCAN Clustered Image', res2)
+# Reshape the color-mapped labels to the resized image shape
+clustered_img = label_color_map.reshape(img_resized.shape)
+
+# Display the clustered result
+cv.imshow('DBSCAN Clustered Image', clustered_img.astype(np.uint8))
 cv.waitKey(0)
 cv.destroyAllWindows()

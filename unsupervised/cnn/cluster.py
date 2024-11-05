@@ -35,7 +35,9 @@ encoded_img = encoder.predict(img_array)[0]  # Remove batch dimension
 print(f"Encoded image shape: {encoded_img.shape}")
 
 # Step 1: Aggregate Encoded Features
+print('encoded_img', np.shape(encoded_img))
 aggregated_encoded_img = np.mean(encoded_img, axis=-1)  # Aggregated to single-channel (16, 32)
+print('aggregated_encoded_img', np.shape(aggregated_encoded_img))
 
 # Optional: Normalize for better visualization
 aggregated_encoded_img = (aggregated_encoded_img - aggregated_encoded_img.min()) / (aggregated_encoded_img.max() - aggregated_encoded_img.min())
