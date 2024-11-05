@@ -1,13 +1,10 @@
 import os
-import joblib
 import numpy as np
 import tensorflow as tf
 tf.autograph.set_verbosity(3)
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D
-from sklearn.cluster import KMeans
-import matplotlib.pyplot as plt
 
 # Path to the images
 image_dir = 'images/rcs'

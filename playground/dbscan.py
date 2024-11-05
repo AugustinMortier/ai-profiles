@@ -6,7 +6,7 @@ from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
 
 path_image = 'images/rcs/AP_0-100-20000-0000001-A-2024-07-02.png'
-path_image = 'images/landscape.jpeg'
+#path_image = 'images/landscape.jpeg'
 
 plt.rcParams["figure.figsize"] = (12, 50) 
 
