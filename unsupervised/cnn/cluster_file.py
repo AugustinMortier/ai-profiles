@@ -15,7 +15,7 @@ import xarray as xr
 data_path = '../data'
 yyyy = '2024'
 mm = '07'
-dd = '04'
+dd = '01'
 station = '0-100-20000-0000001-A'
 method = 'kmeans' # 'kmeans', 'hdbscan'
 
@@ -130,7 +130,7 @@ inner_grid = gridspec.GridSpecFromSubplotSpec(3, 3, subplot_spec=outer_grid[1, 0
 for i in range(9):
     ax = plt.Subplot(plt.gcf(), inner_grid[i])
     ax.imshow(encoded_img[..., i], cmap='gray')
-    ax.set_title(f'Feature {i+1}', fontsize=8)
+    ax.set_title(f'Feature {i+1}/{np.shape(encoded_img)[2]}', fontsize=8)
     ax.axis('off')
     plt.gcf().add_subplot(ax)
 
