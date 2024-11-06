@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 from sklearn.cluster import KMeans
@@ -9,7 +10,7 @@ from skimage import measure
 from skimage.transform import resize
 
 # input
-image_path = 'images/rcs/AP_0-100-20000-0000001-A-2024-07-03.png'
+image_path = 'images/rcs/AP_0-100-20000-0000001-A-2024-07-01.png'
 method = 'kmeans' # 'kmeans', 'hdbscan'
 
 # Paths to saved models
@@ -61,30 +62,39 @@ colormap = plt.get_cmap('tab20', len(unique_labels))  # Get a colormap with enou
 clustered_image = colormap(upsampled_pixel_labels)  # Apply the colormap
 clustered_image[..., 3] = 0.5  # Set the alpha channel to 0.5 for transparency
 
-# Step 6: Plot the Results
-plt.figure(figsize=(12, 8))  # Adjust size for two rows
+# Step 6: Plot the Results in a single figure with tighter layout
+plt.figure(figsize=(16, 9))  # Adjust size as needed
 
-# Original image
-plt.subplot(2, 2, 1)
-plt.imshow(img_array[0].reshape(image_size[0], image_size[1]), cmap='gray')
-plt.title("Original Image")
+# Set up a 2x2 grid with space for an additional 3x3 grid (for the 9 first features)
+outer_grid = gridspec.GridSpec(2, 2, height_ratios=[1, 1.2], width_ratios=[1, 1], wspace=0.1, hspace=0.1)
 
-# Overlay Clustered Image on the Original Image
-plt.subplot(2, 2, 2)
-plt.imshow(img_array[0].reshape(image_size[0], image_size[1]), cmap='gray')
-plt.imshow(clustered_image[:, :, :3], alpha=0.5)  # Overlay with transparency
-plt.title("Overlay of Clustered Image")
-plt.axis('off')  # Hide axes for better visual appeal
+# Original image in top-left corner
+ax1 = plt.subplot(outer_grid[0, 0])
+ax1.imshow(img_array[0].reshape(image_size[0], image_size[1]), cmap='gray')
+ax1.set_title("Original Image", fontsize=10)
+ax1.axis('on')
 
-# Clustered Image
-plt.subplot(2, 2, 4)
-plt.imshow(upsampled_pixel_labels, cmap='tab20')  # Adjust colors to distinguish clusters
-plt.title("Upsampled Clustered Image")
+# Overlay of clustered image in top-right corner
+ax2 = plt.subplot(outer_grid[0, 1])
+ax2.imshow(img_array[0].reshape(image_size[0], image_size[1]), cmap='gray')
+ax2.imshow(clustered_image[:, :, :3], alpha=0.5)  # Overlay with transparency
+ax2.set_title("Overlay of Clustered Image", fontsize=10)
+ax2.axis('on')
 
-# Aggregated Encoded Features Image
-plt.subplot(2, 2, 3)
-plt.imshow(aggregated_encoded_img, cmap='gray')
-plt.title("Aggregated Encoded Features")
+# Upsampled Clustered Image in bottom-right corner
+ax4 = plt.subplot(outer_grid[1, 1])
+ax4.imshow(upsampled_pixel_labels, cmap='tab20')  # Adjust colors to distinguish clusters
+ax4.set_title("Upsampled Clustered Image", fontsize=10)
+ax4.axis('on')
 
-plt.tight_layout()
+# 3x3 grid of first 9 encoded features in the bottom-left corner
+inner_grid = gridspec.GridSpecFromSubplotSpec(3, 3, subplot_spec=outer_grid[1, 0], wspace=0.05, hspace=0.05)
+for i in range(9):
+    ax = plt.Subplot(plt.gcf(), inner_grid[i])
+    ax.imshow(encoded_img[..., i], cmap='gray')
+    ax.set_title(f'Feature {i+1}/{np.shape(encoded_img)[2]}', fontsize=8)
+    ax.axis('off')
+    plt.gcf().add_subplot(ax)
+
+plt.tight_layout(pad=0.5)  # Further reduce padding around all panels
 plt.show()
