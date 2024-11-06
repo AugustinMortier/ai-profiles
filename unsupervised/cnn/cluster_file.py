@@ -15,7 +15,7 @@ import xarray as xr
 data_path = '../data'
 yyyy = '2024'
 mm = '07'
-dd = '01'
+dd = '04'
 station = '0-100-20000-0000001-A'
 method = 'kmeans' # 'kmeans', 'hdbscan'
 
@@ -135,4 +135,5 @@ for i in range(9):
     plt.gcf().add_subplot(ax)
 
 plt.tight_layout(pad=0.5)  # Further reduce padding around all panels
-plt.show()
+#plt.show()
+plt.savefig(f'images/clustered/{yyyy}{mm}{dd}-{station}.png', bbox_inches='tight')
