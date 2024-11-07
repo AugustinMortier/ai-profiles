@@ -15,7 +15,7 @@ import xarray as xr
 data_path = '../data'
 yyyy = '2024'
 mm = '07'
-dd = '01'
+dd = '16'
 station = '0-100-20000-0000001-A'
 method = 'kmeans' # 'kmeans', 'hdbscan'
 
