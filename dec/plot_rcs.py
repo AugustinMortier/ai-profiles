@@ -8,7 +8,6 @@ yyyy = '2024'
 mm = '07'
 d1, d2 = 11, 15
 dds = [str(d).zfill(2) for d in list(range(d1,d2+1))]
-dds = ['01']
 
 # list all AP files for a given date
 files = [[f for f in pathlib.Path('..', 'data', yyyy, mm, dd).iterdir() if f.is_file()] for dd in dds]

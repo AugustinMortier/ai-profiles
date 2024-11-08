@@ -22,15 +22,11 @@ method = 'kmeans' # 'kmeans', 'hdbscan'
 # Paths to saved models
 encoder_path = 'dec/encoder.keras'
 kmeans_path = 'dec/kmeans.pkl'
-hdbscan_path = 'dec/hdbscan.pkl'
 
 # Load the encoder and kmeans model
 encoder = load_model(encoder_path)
 if method == 'kmeans':
     cluster = joblib.load(kmeans_path)
-elif method == 'hdbscan':
-    cluster = joblib.load(hdbscan_path)
-
 
 # Parameters
 var = 'attenuated_backscatter_0'
