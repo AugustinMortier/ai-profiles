@@ -17,6 +17,8 @@ yyyy = '2024'
 mm = '07'
 dd = '16'
 station = '0-100-20000-0000001-A'
+station = '0-20000-0-07014-A'
+savefig = True
 method = 'kmeans' # 'kmeans', 'hdbscan'
 
 # Paths to saved models
@@ -131,5 +133,7 @@ for i in range(9):
     plt.gcf().add_subplot(ax)
 
 plt.tight_layout(pad=0.5)  # Further reduce padding around all panels
-#plt.show()
-plt.savefig(f'images/output/{yyyy}{mm}{dd}-{station}.png', bbox_inches='tight')
+if savefig:
+    plt.savefig(f'images/output/{yyyy}{mm}{dd}-{station}.png', bbox_inches='tight')
+else:
+    plt.show()
