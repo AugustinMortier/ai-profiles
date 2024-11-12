@@ -18,8 +18,13 @@ mm = '07'
 dd = '16'
 station = '0-100-20000-0000001-A'
 station = '0-20000-0-07014-A'
-savefig = True
+
+# simulate partial measurements
+t_max = 12
+fill = 'cropping' # 'cropping' 'padding'
+
 method = 'kmeans' # 'kmeans', 'hdbscan'
+savefig = True
 
 # Paths to saved models
 encoder_path = 'dec/encoder.keras'
@@ -35,10 +40,13 @@ var = 'attenuated_backscatter_0'
 vmin, vmax = -2, 2  # Use the same limits as for plotting
 target_size = (256, 512)
 
-
-
 # Load and preprocess the data
 da = xr.open_dataset(f'{data_path}/{yyyy}/{mm}/{dd}/AP_{station}-{yyyy}-{mm}-{dd}.nc')[var].load()
+if t_max:
+    if fill == 'padding':
+        da = da.where(da.time.dt.hour <= t_max, np.nan)
+    elif fill == 'cropping':
+        da = da.where(da.time.dt.hour <= t_max, drop=True)
 
 # Log transform
 data = np.log(da)
