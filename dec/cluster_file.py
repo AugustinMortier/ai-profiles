@@ -20,7 +20,7 @@ station = '0-100-20000-0000001-A'
 station = '0-20000-0-07014-A'
 
 # simulate partial measurements
-t_max = 12
+t_max = 4
 fill = 'cropping' # 'cropping' 'padding'
 
 method = 'kmeans' # 'kmeans', 'hdbscan'
