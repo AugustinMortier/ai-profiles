@@ -14,13 +14,13 @@ import xarray as xr
 # input
 data_path = '../data'
 yyyy = '2024'
-mm = '07'
-dd = '16'
+mm = '11'
+dd = '20'
 station = '0-100-20000-0000001-A'
-station = '0-20000-0-07014-A'
+station = '0-20000-0-01492-A'
 
 # simulate partial measurements
-t_max = 4
+t_max = None
 fill = 'cropping' # 'cropping' 'padding'
 
 method = 'kmeans' # 'kmeans', 'hdbscan'
