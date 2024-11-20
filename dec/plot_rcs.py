@@ -4,9 +4,10 @@ from rich.progress import track
 import matplotlib.pyplot as plt
 import numpy as np
 
+path = 'validation'
 yyyy = '2024'
 mm = '07'
-d1, d2 = 11, 15
+d1, d2 = 16, 20
 dds = [str(d).zfill(2) for d in list(range(d1,d2+1))]
 
 # list all AP files for a given date
@@ -32,8 +33,8 @@ for file in track(files):
         )
         # Adjust layout for better spacing
         plt.axis('off')
-        pathlib.Path('images','input').mkdir(parents=True, exist_ok=True)
-        plt.savefig(pathlib.Path('images', 'input', f'{file.stem}.png'), bbox_inches='tight', pad_inches = 0)
+        pathlib.Path('images',path).mkdir(parents=True, exist_ok=True)
+        plt.savefig(pathlib.Path('images', path, f'{file.stem}.png'), bbox_inches='tight', pad_inches = 0)
         plt.close()
     except:
         continue
