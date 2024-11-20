@@ -6,20 +6,33 @@ from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D
 
+# Add seed for reproductability
+tf.random.set_seed(42)
+
 # Path to the images
-image_dir = 'images/input'
+training_image_dir = 'images/training'
+validation_image_dir = 'images/validation'
 image_size = (256, 512)  # Resize images to a consistent size
 
 # Step 1: Load and Preprocess the Dataset
-images = []
-for filename in os.listdir(image_dir):
-    img_path = os.path.join(image_dir, filename)
+training_images = []
+for filename in os.listdir(training_image_dir):
+    img_path = os.path.join(training_image_dir, filename)
     img = load_img(img_path, target_size=image_size, color_mode='grayscale')  # Load as grayscale
     img_array = img_to_array(img) / 255.0  # Normalize to [0, 1]
-    images.append(img_array)
+    training_images.append(img_array)
 
-images = np.array(images)
-print(f"Loaded dataset shape: {images.shape}")
+validation_images = []
+for filename in os.listdir(validation_image_dir):
+    img_path = os.path.join(validation_image_dir, filename)
+    img = load_img(img_path, target_size=image_size, color_mode='grayscale')  # Load as grayscale
+    img_array = img_to_array(img) / 255.0  # Normalize to [0, 1]
+    validation_images.append(img_array)
+
+training_images = np.array(training_images)
+validation_images = np.array(validation_images)
+
+print(f"Loaded dataset shape: {training_images.shape}")
 
 # Step 2: Define and Train an Autoencoder
 # Encoder
@@ -47,10 +60,10 @@ autoencoder = Model(input_img, decoded)
 autoencoder.compile(optimizer='adam', loss='mse')
 
 # Train the autoencoder
-autoencoder.fit(images, images, epochs=10, batch_size=16, shuffle=True)
+autoencoder.fit(training_images, validation_data=validation_images, epochs=1, batch_size=16, shuffle=True)
 
 # Step 3: Extract Features and Cluster for Pixel-wise Clustering
 
 # 1. Define the encoder model
 encoder = Model(inputs=autoencoder.input, outputs=encoded)
-encoder.save('dec/encoder.keras')
+encoder.save('dec/encoder.dev.keras')
