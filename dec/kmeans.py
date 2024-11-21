@@ -5,13 +5,10 @@ import tensorflow as tf
 from tensorflow.keras.models import load_model
 tf.autograph.set_verbosity(3)
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D
 from sklearn.cluster import KMeans
-import matplotlib.pyplot as plt
 
 # Path to the images
-image_dir = 'images/input'
+image_dir = 'images/training'
 image_size = (256, 512)  # Resize images to a consistent size
 
 # Step 1: Load and Preprocess the Dataset
@@ -26,7 +23,7 @@ images = np.array(images)
 print(f"Loaded dataset shape: {images.shape}")
 
 # 1. Load encoder
-encoder_path = 'dec/encoder.keras'
+encoder_path = 'dec/encoder.dev.keras'
 encoder = load_model(encoder_path)
 
 # 2. Encode each image to get pixel-level features
@@ -44,7 +41,7 @@ print(f"Encoded pixel features shape for clustering: {encoded_images_flat.shape}
 # 4. Apply KMeans to pixel features
 kmeans = KMeans(n_clusters=4)  # Assuming 6 clusters for molecules, aerosols, clouds, etc.
 pixel_labels = kmeans.fit_predict(encoded_images_flat)  # Clusters all pixels independently
-joblib.dump(kmeans, 'dec/kmeans.pkl')
+joblib.dump(kmeans, 'dec/kmeans.dev.pkl')
 
 # 5. Reshape pixel labels back into image form for visualization
 # After clustering, reshape pixel_labels to (num_images, enc_height, enc_width)
