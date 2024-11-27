@@ -8,7 +8,7 @@ from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from sklearn.cluster import KMeans
 
 # Path to the images
-image_dir = 'images/training'
+image_dir = 'images/k-training'
 image_size = (256, 512)  # Resize images to a consistent size
 
 # Step 1: Load and Preprocess the Dataset
@@ -39,7 +39,7 @@ encoded_images_flat = encoded_images.reshape((num_images * enc_height * enc_widt
 print(f"Encoded pixel features shape for clustering: {encoded_images_flat.shape}")
 
 # 4. Apply KMeans to pixel features
-kmeans = KMeans(n_clusters=4)  # Assuming 6 clusters for molecules, aerosols, clouds, etc.
+kmeans = KMeans(n_clusters=8)  # Assuming 6 clusters for molecules, aerosols, clouds, etc.
 pixel_labels = kmeans.fit_predict(encoded_images_flat)  # Clusters all pixels independently
 joblib.dump(kmeans, 'dec/kmeans.dev.pkl')
 

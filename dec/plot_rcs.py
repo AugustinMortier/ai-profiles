@@ -6,8 +6,9 @@ import numpy as np
 
 path = 'validation'
 yyyy = '2024'
-d1, d2 = 3, 4
-mms = [str(m).zfill(2) for m in list(range(1,11+1))]
+d1, d2 = 2, 2
+m1, m2 = 1, 11
+mms = [str(m).zfill(2) for m in list(range(m1,m2+1))]
 dds = [str(d).zfill(2) for d in list(range(d1,d2+1))]
 
 # list all AP files for a given date

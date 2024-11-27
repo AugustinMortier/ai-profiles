@@ -4,7 +4,7 @@ import tensorflow as tf
 tf.autograph.set_verbosity(3)
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D
+from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, AveragePooling2D, UpSampling2D
 
 # Add seed for reproductability
 tf.random.set_seed(42)
@@ -12,6 +12,7 @@ tf.random.set_seed(42)
 # Path to the images
 training_image_dir = 'images/training'
 validation_image_dir = 'images/validation'
+checkpoints_dir = 'dec/checkpoints.weights.h5'
 image_size = (256, 512)  # Resize images to a consistent size
 
 # Step 1: Load and Preprocess the Dataset
@@ -60,7 +61,8 @@ autoencoder = Model(input_img, decoded)
 autoencoder.compile(optimizer='adam', loss='mse')
 
 # Train the autoencoder
-autoencoder.fit(training_images, training_images, validation_data=(validation_images, validation_images), epochs=1, batch_size=16, shuffle=True)
+checkpoint = tf.keras.callbacks.ModelCheckpoint(filepath = checkpoints_dir, save_weights_only = True, monitor = 'val_loss', mode = 'min', verbose = 2, save_best_only = True)
+autoencoder.fit(training_images, training_images, validation_data=(validation_images, validation_images), epochs=10, batch_size=16, shuffle=True, callbacks = [checkpoint])
 
 # 1. Define the encoder model
 encoder = Model(inputs=autoencoder.input, outputs=encoded)

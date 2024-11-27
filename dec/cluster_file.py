@@ -14,21 +14,21 @@ import xarray as xr
 # input
 data_path = '../data'
 yyyy = '2024'
-mm = '11'
-dd = '20'
+mm = '07'
+dd = '02'
 station = '0-100-20000-0000001-A'
-station = '0-20000-0-01492-A'
+#station = '0-20000-0-01492-A'
 
 # simulate partial measurements
 t_max = None
 fill = 'cropping' # 'cropping' 'padding'
 
 method = 'kmeans' # 'kmeans', 'hdbscan'
-savefig = True
+savefig = False
 
 # Paths to saved models
-encoder_path = 'dec/encoder.keras'
-kmeans_path = 'dec/kmeans.pkl'
+encoder_path = 'dec/encoder.dev.keras'
+kmeans_path = 'dec/kmeans.dev.pkl'
 
 # Load the encoder and kmeans model
 encoder = load_model(encoder_path)
@@ -91,6 +91,12 @@ aggregated_encoded_img = (aggregated_encoded_img - aggregated_encoded_img.min())
 encoded_img_flat = encoded_img.reshape(-1, encoded_img.shape[-1])  # Flatten spatial dimensions for clustering
 pixel_labels = cluster.predict(encoded_img_flat)  # Get cluster labels for each pixel
 
+# merge some clusters together
+#pixel_labels = np.where((pixel_labels == 6), 2, pixel_labels)
+#pixel_labels = np.where((pixel_labels == 0), 3, pixel_labels)
+#pixel_labels = np.where((pixel_labels == 2), 4, pixel_labels)
+
+
 # Reshape the cluster labels back to the spatial dimensions
 pixel_labels_image_shape = pixel_labels.reshape(encoded_img.shape[0], encoded_img.shape[1])
 
@@ -130,6 +136,19 @@ ax4 = plt.subplot(outer_grid[1, 1])
 ax4.imshow(upsampled_pixel_labels, cmap='tab20')  # Adjust colors to distinguish clusters
 ax4.set_title("Upsampled Clustered Image", fontsize=10)
 ax4.axis('on')
+
+# Step 7: Map cluster labels to colors for the legend
+cluster_colors = {label: colormap(idx) for idx, label in enumerate(unique_labels)}
+
+# Create a legend with cluster colors
+legend_elements = [
+    plt.Line2D([0], [0], marker='o', color=colormap(idx)[:3], label=f'Cluster {label}',
+               markersize=8, linestyle='None') for idx, label in enumerate(unique_labels)
+]
+
+# Add the legend below the clustered image
+ax4.legend(handles=legend_elements, loc='upper center', bbox_to_anchor=(0.5, -0.1), ncol=4, fontsize=8)
+
 
 # 3x3 grid of first 9 encoded features in the bottom-left corner
 inner_grid = gridspec.GridSpecFromSubplotSpec(3, 3, subplot_spec=outer_grid[1, 0], wspace=0.05, hspace=0.05)
