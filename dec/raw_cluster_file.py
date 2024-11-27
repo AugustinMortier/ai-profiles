@@ -11,24 +11,24 @@ from skimage import measure
 from skimage.transform import resize
 import xarray as xr
 
-# Input
+# input
 data_path = '../data'
 yyyy = '2024'
 mm = '07'
-dd = '01'
+dd = '02'
 station = '0-100-20000-0000001-A'
 #station = '0-20000-0-01492-A'
 
-# Simulate partial measurements
+# simulate partial measurements
 t_max = None
-fill = 'cropping'  # 'cropping', 'padding'
+fill = 'cropping' # 'cropping' 'padding'
 
-method = 'kmeans'  # 'kmeans', 'hdbscan'
+method = 'kmeans' # 'kmeans', 'hdbscan'
 savefig = False
 
 # Paths to saved models
-encoder_path = 'dec/encoder.keras'
-kmeans_path = 'dec/kmeans.pkl'
+encoder_path = 'dec/encoder.dev.keras'
+kmeans_path = 'dec/kmeans.dev.pkl'
 
 # Load the encoder and kmeans model
 encoder = load_model(encoder_path)
@@ -51,13 +51,13 @@ if t_max:
 # Log transform
 data = np.log(da)
 
-# Transpose and flip
+# transpose and flip
 data = np.flip(data.transpose(), axis=0)
 
 # Clip data to the range [vmin, vmax] and then scale it
 data_clipped = np.clip(data, vmin, vmax)
 
-# Replace NaNs with minimum values
+# replace nans with max values
 np.nan_to_num(data_clipped, copy=False, nan=vmin)
 
 # Invert the normalized data to reflect the 'gray_r' colormap
@@ -91,41 +91,28 @@ aggregated_encoded_img = (aggregated_encoded_img - aggregated_encoded_img.min())
 encoded_img_flat = encoded_img.reshape(-1, encoded_img.shape[-1])  # Flatten spatial dimensions for clustering
 pixel_labels = cluster.predict(encoded_img_flat)  # Get cluster labels for each pixel
 
-# Step 3: Map clusters to categories
-category_mapping = {
-    1: 1,  # molecules
-    3: 1,  # molecules
-    5: 1,  # noise
-    4: 1,  # aerosols
-    2: 0,  # clouds
-    6: 0,  # clouds
-    0: 1,  # other
-    7: 1   # other
-}
-pixel_labels = np.vectorize(category_mapping.get)(pixel_labels)
+# merge some clusters together
+#pixel_labels = np.where((pixel_labels == 6), 2, pixel_labels)
+#pixel_labels = np.where((pixel_labels == 0), 3, pixel_labels)
+#pixel_labels = np.where((pixel_labels == 2), 4, pixel_labels)
+
 
 # Reshape the cluster labels back to the spatial dimensions
 pixel_labels_image_shape = pixel_labels.reshape(encoded_img.shape[0], encoded_img.shape[1])
 
-# Step 4: Upsample the cluster labels to match the original image size
-upsampled_pixel_labels = resize(
-    pixel_labels_image_shape,
-    (target_size[0], target_size[1]),
-    order=0,  # Nearest-neighbor interpolation
-    preserve_range=True,
-    anti_aliasing=False
-)
+# Step 3: Upsample the cluster labels to match the original image size
+upsampled_pixel_labels = resize(pixel_labels_image_shape, (target_size[0], target_size[1]), order=0, preserve_range=True, anti_aliasing=False)
 upsampled_pixel_labels = upsampled_pixel_labels.astype(int)  # Ensure the labels are integers
 
-# Step 5: Create a colormap for cluster labels
+# Step 4: Create a colormap for cluster labels
 unique_labels = np.unique(upsampled_pixel_labels)
 colormap = plt.get_cmap('tab20', len(unique_labels))  # Get a colormap with enough colors
 
-# Step 6: Create an overlay image with transparency
+# Step 5: Create an overlay image with transparency
 clustered_image = colormap(upsampled_pixel_labels)  # Apply the colormap
 clustered_image[..., 3] = 0.5  # Set the alpha channel to 0.5 for transparency
 
-# Step 7: Plot the Results in a single figure with tighter layout
+# Step 6: Plot the Results in a single figure with tighter layout
 plt.figure(figsize=(16, 9))  # Adjust size as needed
 
 # Set up a 2x2 grid with space for an additional 3x3 grid (for the 9 first features)
@@ -150,7 +137,7 @@ ax4.imshow(upsampled_pixel_labels, cmap='tab20')  # Adjust colors to distinguish
 ax4.set_title("Upsampled Clustered Image", fontsize=10)
 ax4.axis('on')
 
-# Map cluster labels to colors for the legend
+# Step 7: Map cluster labels to colors for the legend
 cluster_colors = {label: colormap(idx) for idx, label in enumerate(unique_labels)}
 
 # Create a legend with cluster colors
@@ -161,6 +148,7 @@ legend_elements = [
 
 # Add the legend below the clustered image
 ax4.legend(handles=legend_elements, loc='upper center', bbox_to_anchor=(0.5, -0.1), ncol=4, fontsize=8)
+
 
 # 3x3 grid of first 9 encoded features in the bottom-left corner
 inner_grid = gridspec.GridSpecFromSubplotSpec(3, 3, subplot_spec=outer_grid[1, 0], wspace=0.05, hspace=0.05)
