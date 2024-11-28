@@ -41,6 +41,7 @@ input_img = Input(shape=(256, 512, 1))  # 256, 512, 1
 x = Conv2D(32, (3, 3), activation='relu', padding='same')(input_img) # 256, 512, 32
 x = MaxPooling2D((2, 2), padding='same')(x) # 128, 256, 32
 x = Conv2D(64, (3, 3), activation='relu', padding='same')(x) # 128, 256, 64
+x = Conv2D(64, (3, 3), activation='relu', padding='same')(x) # 128, 256, 64
 x = MaxPooling2D((2, 2), padding='same')(x) # 64, 128, 64
 
 # Latent Space
@@ -51,6 +52,7 @@ encoded = MaxPooling2D((2, 2), padding='same')(x) # 32, 64, 128
 x = Conv2D(128, (3, 3), activation='relu', padding='same')(encoded) # 32, 64, 128
 x = UpSampling2D((2, 2))(x) # 64, 128, 128
 x = Conv2D(64, (3, 3), activation='relu', padding='same')(x) # 64, 128, 64
+x = Conv2D(64, (3, 3), activation='relu', padding='same')(x) # 64, 128, 64
 x = UpSampling2D((2, 2))(x) # 128, 256, 64
 x = Conv2D(32, (3, 3), activation='relu', padding='same')(x) # 128, 256, 32
 x = UpSampling2D((2, 2))(x) # 256, 512, 32
@@ -58,7 +60,7 @@ decoded = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(x) # 256, 512,
 
 # Model definition
 autoencoder = Model(input_img, decoded)
-autoencoder.compile(optimizer='adam', loss='mse')
+autoencoder.compile(optimizer='adam', learning_rate=0.001, loss='mse')
 
 # Train the autoencoder
 checkpoint = tf.keras.callbacks.ModelCheckpoint(filepath = checkpoints_dir, save_weights_only = True, monitor = 'val_loss', mode = 'min', verbose = 2, save_best_only = True)

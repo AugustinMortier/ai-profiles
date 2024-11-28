@@ -24,11 +24,11 @@ t_max = None
 fill = 'cropping' # 'cropping' 'padding'
 
 method = 'kmeans' # 'kmeans', 'hdbscan'
-savefig = False
+savefig = True
 
 # Paths to saved models
-encoder_path = 'dec/encoder.dev.keras'
-kmeans_path = 'dec/kmeans.dev.pkl'
+encoder_path = 'dec/encoder.keras'
+kmeans_path = 'dec/kmeans.pkl'
 
 # Load the encoder and kmeans model
 encoder = load_model(encoder_path)
@@ -161,6 +161,6 @@ for i in range(9):
 
 plt.tight_layout(pad=0.5)  # Further reduce padding around all panels
 if savefig:
-    plt.savefig(f'images/output/{yyyy}{mm}{dd}-{station}.png', bbox_inches='tight')
+    plt.savefig(f'images/output/{yyyy}{mm}{dd}-{station}_raw.png', bbox_inches='tight')
 else:
     plt.show()

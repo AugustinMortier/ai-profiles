@@ -15,8 +15,9 @@ import xarray as xr
 data_path = '../data'
 yyyy = '2024'
 mm = '07'
-dd = '03'
-station = '0-100-20000-0000001-A'
+dd = '16'
+#station = '0-100-20000-0000001-A'
+station = '0-20000-0-07014-A'
 #station = '0-20000-0-07110-A'
 #station = '0-20000-0-01492-A'
 
@@ -25,7 +26,7 @@ t_max = None
 fill = 'cropping'  # 'cropping', 'padding'
 
 method = 'kmeans'  # 'kmeans', 'hdbscan'
-savefig = False
+savefig = True
 
 # Paths to saved models
 encoder_path = 'dec/encoder.keras'
@@ -154,7 +155,7 @@ ax4.axis('on')
 # Map cluster labels to colors for the legend
 cluster_colors = {label: colormap(idx) for idx, label in enumerate(unique_labels)}
 
-# Create a legend with cluster colors
+"""# Create a legend with cluster colors
 legend_elements = [
     plt.Line2D([0], [0], marker='o', color=colormap(idx)[:3], label=f'Cluster {label}',
                markersize=8, linestyle='None') for idx, label in enumerate(unique_labels)
@@ -162,7 +163,7 @@ legend_elements = [
 
 # Add the legend below the clustered image
 ax4.legend(handles=legend_elements, loc='upper center', bbox_to_anchor=(0.5, -0.1), ncol=4, fontsize=8)
-
+"""
 # 3x3 grid of first 9 encoded features in the bottom-left corner
 inner_grid = gridspec.GridSpecFromSubplotSpec(3, 3, subplot_spec=outer_grid[1, 0], wspace=0.05, hspace=0.05)
 for i in range(9):
