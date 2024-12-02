@@ -3,6 +3,9 @@
 AI toolbox for [A-Profiles](https://github.com/AugustinMortier/a-profiles).
 The primary goal of this tool is to provide a robust **cloud detection**.
 
+## Autoencoder training
+![image](images/autoencoder_training.png)
+autoencoder training
 
 ## Deep Embedded Clustering
 ![image](images/output/20240702-0-100-20000-0000001-A.png)
