@@ -1,13 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
-import tensorflow as tf
 from tensorflow.keras.models import load_model
-from sklearn.cluster import KMeans
-from sklearn import preprocessing as pre
 import joblib
-from tensorflow.keras.preprocessing.image import load_img, img_to_array
-from skimage import measure
 from skimage.transform import resize
 import xarray as xr
 
